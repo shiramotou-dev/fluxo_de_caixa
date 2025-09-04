@@ -51,7 +51,7 @@ body {
   padding: 2rem 0;
   min-height: 100vh;
   transition: background-color 0.3s ease, color 0.3s ease;
-  background-image: url("images/backgroundstyle.jpg");
+  background-image: /image/backgroundstyle.jpg;
   background-size: cover;
   background-position: center;
   background-attachment: fixed;
@@ -669,3 +669,4 @@ body.dark-mode footer {
     grid-column: span 1;
   }
 }
+
