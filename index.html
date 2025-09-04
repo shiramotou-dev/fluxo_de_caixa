@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Gerenciador Financeiro - Fluxo de Caixa Mirá Sushi</title>
+  <link rel="stylesheet" href="styles.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" />
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+
+<body>
+  <div class="main-container">
+    <header>
+      <h1>Gerenciador Financeiro Mirá Sushi</h1>
+      <p>Controle suas entradas e saídas de forma simples e inteligente.</p>
+      <button id="toggleDarkModeBtn" class="toggle-mode-btn" title="Alternar Modo Escuro">
+        <i class="fas fa-moon"></i>
+      </button>
+    </header>
+
+    <nav class="nav-menu">
+      <button id="navBtnGerenciamento" class="nav-btn active">
+        <i class="fas fa-tasks"></i> Gerenciamento
+      </button>
+      <button id="navBtnGraficos" class="nav-btn">
+        <i class="fas fa-chart-line"></i> Análise e Previsão
+      </button>
+    </nav>
+
+    <section class="painel-resumo">
+      <div class="card card-resumo entradas-card">
+        <h3><i class="fas fa-arrow-up"></i> Entradas</h3>
+        <p id="totalEntradas">R$ 0,00</p>
+      </div>
+      <div class="card card-resumo saidas-card">
+        <h3><i class="fas fa-arrow-down"></i> Saídas</h3>
+        <p id="totalSaidas">R$ 0,00</p>
+      </div>
+      <div class="card card-resumo saldo-card">
+        <h3><i class="fas fa-wallet"></i> Saldo Atual</h3>
+        <p id="saldoTotal">R$ 0,00</p>
+      </div>
+    </section>
+
+    <main id="page-gerenciamento">
+      <section class="card" id="form-transacao-section">
+        <div class="form-header">
+          <h2>Nova Transação</h2>
+          <button id="btnGerenciarRecorrentes" class="btn btn-secondary">
+            <i class="fas fa-sync-alt"></i> Recorrentes
+          </button>
+        </div>
+        <form id="transacaoForm">
+          <div class="form-group">
+            <label for="tipoTransacao">Tipo:</label>
+            <select id="tipoTransacao" required>
+              <option value="" selected disabled>Selecione o tipo</option>
+              <option value="entrada almoço">Entrada Almoço</option>
+              <option value="saida almoço">Saída Almoço</option>
+              <option value="entrada jantar">Entrada Jantar</option>
+              <option value="saida jantar">Saída Jantar</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="dataTransacao">Data:</label>
+            <input type="date" id="dataTransacao" required />
+          </div>
+          <div class="form-group">
+            <label>Valor(es) e Observações:</label>
+            <div id="valor-obs-container">
+              <div class="valor-obs-group">
+                <input type="number" class="valor-transacao" placeholder="0,00" step="0.01" required />
+                <input type="text" class="obs-valor" placeholder="Observação para este valor" />
+              </div>
+            </div>
+            <button type="button" id="addValorBtn" class="btn btn-info">
+              <i class="fas fa-plus"></i> Adicionar Valor
+            </button>
+          </div>
+          <button type="submit" id="formBtn" class="btn btn-primary" style="width: 100%; padding: 0.75rem">
+            <i class="fas fa-plus-circle"></i> Adicionar Transação
+          </button>
+        </form>
+      </section>
+
+      <section class="card historico-transacoes">
+        <div class="historico-header">
+          <h2>Histórico de Transações</h2>
+          <div class="filtros-historico">
+            <div class="form-group">
+              <label for="filtroAno">Ano:</label>
+              <select id="filtroAno"></select>
+            </div>
+            <div class="form-group">
+              <label for="filtroMes">Mês:</label>
+              <select id="filtroMes"></select>
+            </div>
+          </div>
+        </div>
+        <div class="tabela-container">
+          <table>
+            <thead>
+              <tr>
+                <th>Data</th>
+                <th>Tipo</th>
+                <th>Valor Total</th>
+                <th>Detalhes</th>
+                <th>Ações</th>
+              </tr>
+            </thead>
+            <tbody id="listaTransacoes"></tbody>
+          </table>
+        </div>
+        <div class="paginacao-container" id="paginacao"></div>
+        <div class="acoes-historico">
+          <button id="limparHistoricoBtn" class="btn btn-danger">
+            <i class="fas fa-trash-alt"></i> Limpar Histórico
+          </button>
+          <label for="importarDadosInput" class="btn btn-info"><i class="fas fa-file-upload"></i> Importar Dados</label>
+          <input type="file" id="importarDadosInput" accept=".xlsx, .xls" style="display: none" />
+          <button id="exportarDadosBtn" class="btn btn-success">
+            <i class="fas fa-file-excel"></i> Exportar Dados
+          </button>
+        </div>
+      </section>
+    </main>
+
+    <main id="page-graficos" class="page-hidden">
+      <section class="card secao-analise">
+        <h2>Análise Mensal</h2>
+        <div class="filtros-grafico">
+          <div class="form-group">
+            <label for="filtroAnoGrafico">Ano:</label>
+            <select id="filtroAnoGrafico"></select>
+          </div>
+        </div>
+        <div class="grafico-container">
+          <canvas id="resumoMensalChart"></canvas>
+        </div>
+      </section>
+      <section class="card secao-analise">
+        <h2>Previsão de Saldo (Próximos 6 meses)</h2>
+        <div class="grafico-container">
+          <canvas id="previsaoSaldoChart"></canvas>
+        </div>
+      </section>
+    </main>
+
+    <footer>
+      <strong>
+        <p>
+          &copy; 2025 Gerenciador Financeiro. Todos os direitos reservados.
+        </p>
+        <p>Ulisses Shiramoto</p>
+      </strong>
+    </footer>
+  </div>
+
+  <div id="toast-container"></div>
+
+  <div id="modal-container" class="modal-hidden">
+    <div class="modal card">
+      <p id="modal-texto"></p>
+      <div class="modal-botoes">
+        <button id="modal-confirmar" class="btn btn-primary">
+          Confirmar
+        </button>
+        <button id="modal-cancelar" class="btn btn-secondary">
+          Cancelar
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <div id="modal-recorrente-container" class="modal-hidden">
+    <div class="modal card">
+      <h3>Gerenciar Lançamentos Recorrentes</h3>
+      <form id="formRecorrente">
+        <div class="form-group">
+          <label for="tipoRecorrente">Tipo:</label>
+          <select id="tipoRecorrente" required>
+            <option value="entrada">Entrada</option>
+            <option value="saida">Saída</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label for="obsRecorrente">Observação (Descrição):</label>
+          <input type="text" id="obsRecorrente" placeholder="Ex: Aluguel, Salário" required />
+        </div>
+        <div class="form-group">
+          <label for="valorRecorrente">Valor:</label>
+          <input type="number" id="valorRecorrente" placeholder="0,00" step="0.01" required />
+        </div>
+        <div class="form-group">
+          <label for="diaRecorrente">Dia do Mês para Lançamento:</label>
+          <input type="number" id="diaRecorrente" min="1" max="28" value="1" required />
+        </div>
+        <button type="submit" class="btn btn-primary">
+          <i class="fas fa-plus"></i> Adicionar
+        </button>
+      </form>
+      <hr />
+      <h4>Lançamentos Salvos</h4>
+      <div id="lista-recorrentes"></div>
+      <div class="modal-botoes">
+        <button id="modal-recorrente-fechar" class="btn btn-secondary">
+          Fechar
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <script src="xlsx.full.min.js"></script>
+  <script src="script.js"></script>
+</body>
+
+</html>
